@@ -1,0 +1,5 @@
+eu\platform\common\dto\CrossBorderRequest.class
+eu\platform\common\dto\CrossBorderResponse$CrossBorderResponseBuilder.class
+eu\platform\common\dto\CrossBorderResponse.class
+eu\platform\common\dto\CrossBorderRequest$CrossBorderRequestBuilder.class
+eu\platform\common\dto\DataEntry.class

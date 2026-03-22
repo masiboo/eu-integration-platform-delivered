@@ -1,0 +1,63 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  germany-tax:
+    build: ./country-services/germany-tax
+    ports:
+      - "8082:8082"
+    environment:
+      SERVER_PORT: 8082
+
+  france-customs:
+    build: ./country-services/france-customs
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_BROKERS: kafka:29092
+
+  netherlands-identity:
+    build: ./country-services/netherlands-identity
+    ports:
+      - "8084:8084"
+    environment:
+      SERVER_PORT: 8084
+
+  integration-service:
+    build: ./integration-service
+    depends_on:
+      - kafka
+      - germany-tax
+      - netherlands-identity
+    ports:
+      - "8081:8081"
+    environment:
+      KAFKA_BROKERS: kafka:29092
+      GERMANY_TAX_URL: http://germany-tax:8082/germany/v1/tax
+      NETHERLANDS_IDENTITY_URL: http://netherlands-identity:8084/netherlands/v1/identity
+
+  api-gateway:
+    build: ./api-gateway
+    depends_on:
+      - integration-service
+    ports:
+      - "8080:8080"
+    environment:
+      INTEGRATION_SERVICE_URL: http://integration-service:8081/integration/v1/process

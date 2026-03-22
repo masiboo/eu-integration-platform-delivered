@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+camel:
+  springboot:
+    name: EU-API-Gateway
+    main-run-controller: true
+  servlet:
+    mapping:
+      context-path: /gateway/*
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: INFO
+    eu.platform: DEBUG
+    org.apache.camel: INFO

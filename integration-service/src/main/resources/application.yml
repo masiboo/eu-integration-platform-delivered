@@ -1,0 +1,35 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: integration-service
+
+camel:
+  springboot:
+    name: EU-Integration-Service
+    main-run-controller: true
+  servlet:
+    mapping:
+      context-path: /integration/*
+
+kafka:
+  brokers: localhost:9092
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+logging:
+  level:
+    root: INFO
+    eu.platform: DEBUG
+    org.apache.camel: INFO
